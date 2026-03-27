@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+venv/
+ENV/
+
+# Django
+*.log
+db.sqlite3
+/media
+/staticfiles
+
+# Credentials (IMPORTANTE)
+.env
+zoom_credentials.txt
+*.key
+*.pem
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+.env

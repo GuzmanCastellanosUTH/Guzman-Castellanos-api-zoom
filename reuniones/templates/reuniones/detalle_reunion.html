@@ -1,0 +1,303 @@
+{% extends 'reuniones/base.html' %}
+
+{% block title %}{{ reunion.titulo }} - Detalle{% endblock %}
+
+{% block content %}
+<!-- Botón Volver -->
+<div class="mb-4">
+    <a href="{% url 'lista_reuniones' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> 
+        Volver a Mis Reuniones
+    </a>
+</div>
+
+<!-- Header de la Reunión -->
+<div class="card-zoom mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="display-5 mb-3" style="color: #2D8CFF; font-weight: 700;">
+                    <i class="fas fa-video me-2"></i>
+                    {{ reunion.titulo }}
+                </h1>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-fingerprint"></i> 
+                    ID de Reunión: <strong>{{ reunion.zoom_meeting_id }}</strong>
+                </p>
+            </div>
+            
+            {% now "U" as timestamp %}
+            {% if reunion.fecha_inicio.timestamp > timestamp|add:"0" %}
+                <span class="badge bg-success" style="font-size: 1.2em; padding: 12px 20px;">
+                    <i class="fas fa-clock"></i> Próxima
+                </span>
+            {% else %}
+                <span class="badge bg-secondary" style="font-size: 1.2em; padding: 12px 20px;">
+                    <i class="fas fa-check"></i> Finalizada
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Columna Izquierda: Información -->
+    <div class="col-lg-8 mb-4">
+        <!-- Información de la Reunión -->
+        <div class="card-zoom mb-4">
+            <div class="card-body">
+                <h4 class="mb-4" style="color: #2D8CFF;">
+                    <i class="fas fa-info-circle"></i> 
+                    Información General
+                </h4>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3" style="background: #f0f9ff; border-radius: 10px; border-left: 4px solid #2D8CFF;">
+                            <div class="text-muted mb-1">
+                                <i class="fas fa-calendar-day"></i> Fecha
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: #1f2937;">
+                                {{ reunion.fecha_inicio|date:"d/m/Y" }}
+                            </div>
+                            <small class="text-muted">
+                                {{ reunion.fecha_inicio|date:"l" }}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="p-3" style="background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                            <div class="text-muted mb-1">
+                                <i class="fas fa-clock"></i> Hora de Inicio
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: #1f2937;">
+                                {{ reunion.fecha_inicio|date:"H:i" }} hrs
+                            </div>
+                            <small class="text-muted">
+                                Zona horaria local
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="p-3" style="background: #e0f2fe; border-radius: 10px; border-left: 4px solid #0ea5e9;">
+                            <div class="text-muted mb-1">
+                                <i class="fas fa-hourglass-half"></i> Duración
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: #1f2937;">
+                                {{ reunion.duracion }} minutos
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="p-3" style="background: #dcfce7; border-radius: 10px; border-left: 4px solid #10b981;">
+                            <div class="text-muted mb-1">
+                                <i class="fas fa-user"></i> Creador
+                            </div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: #1f2937;">
+                                {{ reunion.creador.get_full_name|default:reunion.creador.username }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enlaces de Acceso -->
+        <div class="card-zoom">
+            <div class="card-body">
+                <h4 class="mb-4" style="color: #2D8CFF;">
+                    <i class="fas fa-link"></i> 
+                    Enlaces de Acceso
+                </h4>
+                
+                <!-- Link para Anfitrión -->
+                <div class="mb-4 p-4" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; color: white;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0" style="color: white;">
+                            <i class="fas fa-star"></i> 
+                            Enlace para Anfitrión
+                        </h5>
+                        <a href="{{ reunion.start_url }}" 
+                           target="_blank" 
+                           class="btn btn-light btn-sm">
+                            <i class="fas fa-external-link-alt"></i> 
+                            Abrir
+                        </a>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               value="{{ reunion.start_url }}" 
+                               id="startUrl" 
+                               readonly
+                               style="background: white; font-family: monospace;">
+                        <button class="btn btn-light" 
+                                onclick="copiarTexto('startUrl')">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <small style="opacity: 0.9;">
+                        <i class="fas fa-info-circle"></i> 
+                        Solo tú puedes usar este enlace para iniciar la reunión
+                    </small>
+                </div>
+                
+                <!-- Link para Participantes -->
+                <div class="p-4" style="background: linear-gradient(135deg, #2D8CFF 0%, #0E71EB 100%); border-radius: 12px; color: white;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0" style="color: white;">
+                            <i class="fas fa-users"></i> 
+                            Enlace para Participantes
+                        </h5>
+                        <a href="{{ reunion.join_url }}" 
+                           target="_blank" 
+                           class="btn btn-light btn-sm">
+                            <i class="fas fa-external-link-alt"></i> 
+                            Abrir
+                        </a>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               class="form-control" 
+                               value="{{ reunion.join_url }}" 
+                               id="joinUrl" 
+                               readonly
+                               style="background: white; font-family: monospace;">
+                        <button class="btn btn-light" 
+                                onclick="copiarTexto('joinUrl')">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <small style="opacity: 0.9;">
+                        <i class="fas fa-share-alt"></i> 
+                        Comparte este enlace con tus participantes
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Derecha: Código QR -->
+    <div class="col-lg-4 mb-4">
+        <div class="card-zoom text-center sticky-top" style="top: 20px;">
+            <div class="card-body">
+                <h4 class="mb-4" style="color: #2D8CFF;">
+                    <i class="fas fa-qrcode"></i> 
+                    Código QR
+                </h4>
+                
+                <!-- Código QR generado con API -->
+                <div class="mb-3 p-3" style="background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ reunion.join_url|urlencode }}" 
+                         alt="Código QR"
+                         class="img-fluid"
+                         style="border-radius: 10px;">
+                </div>
+                
+                <p class="text-muted mb-3">
+                    <i class="fas fa-mobile-alt"></i> 
+                    Escanea con tu celular para unirte
+                </p>
+                
+                <a href="https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data={{ reunion.join_url|urlencode }}" 
+                   download="reunion_qr_{{ reunion.meeting_id }}.png"
+                   class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-download"></i> 
+                    Descargar QR
+                </a>
+                
+                <button onclick="window.print()" 
+                        class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-print"></i> 
+                    Imprimir
+                </button>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="card-zoom mt-4">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <i class="fas fa-bolt"></i> 
+                    Acciones Rápidas
+                </h5>
+                
+                <a href="{{ reunion.start_url }}" 
+                   target="_blank"
+                   class="btn btn-success w-100 mb-2 btn-lg">
+                    <i class="fas fa-play-circle"></i> 
+                    Iniciar Reunión
+                </a>
+                
+                <a href="{{ reunion.join_url }}" 
+                   target="_blank"
+                   class="btn btn-zoom w-100 mb-2">
+                    <i class="fas fa-sign-in-alt"></i> 
+                    Unirse a Reunión
+                </a>
+                
+                <hr>
+                
+                <button type="button"
+                        class="btn btn-danger w-100"
+                        onclick="confirmarEliminacion('{{ reunion.zoom_meeting_id }}', '{{ reunion.titulo }}')">
+                    <i class="fas fa-trash"></i> 
+                    Eliminar Reunión
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para copiar texto -->
+<script>
+function copiarTexto(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // Para móviles
+    
+    document.execCommand('copy');
+    
+    // Feedback visual
+    const btn = event.target.closest('button');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
+    btn.classList.add('btn-success');
+    btn.classList.remove('btn-light');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-light');
+    }, 2000);
+}
+</script>
+<script>
+function confirmarEliminacion(id, titulo) {
+    if (!confirm(`¿Estás seguro de eliminar la reunión "${titulo}"?`)) {
+        return;
+    }
+
+    fetch(`/eliminar/${id}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok) {
+            alert('✅ Reunión eliminada correctamente');
+            window.location.href = "{% url 'lista_reuniones' %}";
+        } else {
+            alert(data.error || '❌ Error al eliminar');
+        }
+    })
+    .catch(() => alert('❌ Error de conexión'));
+}
+</script>
+
+{% endblock %}
